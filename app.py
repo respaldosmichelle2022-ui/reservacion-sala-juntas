@@ -61,6 +61,9 @@ def send_email_async(subject, recipient, body_html):
             return
         
         try:
+            import socket
+            import ssl
+            
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
             msg['From'] = app.config['MAIL_DEFAULT_SENDER'] or app.config['MAIL_USERNAME']
@@ -70,11 +73,28 @@ def send_email_async(subject, recipient, body_html):
             msg.attach(part)
 
             server_port = app.config['MAIL_PORT']
+            mail_server = app.config['MAIL_SERVER']
+            
+            # Forzar resolución IPv4 para evitar problemas con redes IPv6-only/bloqueos en Render
+            try:
+                addr_info = socket.getaddrinfo(mail_server, server_port, socket.AF_INET, socket.SOCK_STREAM)
+                if addr_info:
+                    mail_server = addr_info[0][4][0]
+                    print(f"Servidor SMTP resuelto a IPv4: {mail_server}")
+            except Exception as dns_err:
+                print(f"Advertencia al resolver DNS de correo: {dns_err}")
+
             if app.config['MAIL_USE_TLS']:
-                server = smtplib.SMTP(app.config['MAIL_SERVER'], server_port)
-                server.starttls()
+                server = smtplib.SMTP(mail_server, server_port, timeout=15)
+                context = ssl.create_default_context()
+                if mail_server[0].isdigit() or ':' in mail_server:
+                    context.check_hostname = False
+                server.starttls(context=context)
             else:
-                server = smtplib.SMTP_SSL(app.config['MAIL_SERVER'], server_port)
+                context = ssl.create_default_context()
+                if mail_server[0].isdigit() or ':' in mail_server:
+                    context.check_hostname = False
+                server = smtplib.SMTP_SSL(mail_server, server_port, context=context, timeout=15)
             
             server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
             server.sendmail(msg['From'], recipient, msg.as_string())
