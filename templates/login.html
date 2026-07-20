@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Administrador - Sala de Juntas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <img src="{{ url_for('static', filename='img/logo-michelle.png') }}" alt="Logo Michelle" style="height: 60px; width: auto; object-fit: contain;">
+            </div>
+            <h2>Acceso Administrador</h2>
+            <p class="subtitle">Ingresa la contraseña para gestionar las reservaciones</p>
+            
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••" autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+            </form>
+            <div class="login-footer">
+                <a href="{{ url_for('index') }}">← Volver al Calendario</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

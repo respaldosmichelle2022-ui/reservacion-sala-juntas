@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Sala de Juntas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo" style="display: flex; align-items: center; gap: 1rem;">
+                <img src="{{ url_for('static', filename='img/logo-michelle.png') }}" alt="Logo Michelle" style="height: 40px; width: auto; object-fit: contain;">
+                <h1>Sala de Juntas <span class="badge badge-admin">Admin Panel</span></h1>
+            </div>
+            <nav class="nav-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Ver Calendario</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-content">
+        <section class="dashboard-section">
+            <h2>Solicitudes Pendientes (Preaprobatorias)</h2>
+            <p class="section-desc">Autoriza o rechaza las nuevas solicitudes de apartados.</p>
+            
+            <div id="loading-pendientes" class="spinner-container">
+                <div class="spinner"></div>
+                <p>Cargando solicitudes...</p>
+            </div>
+
+            <div id="no-pendientes" class="empty-state hidden">
+                <div class="empty-icon">📅</div>
+                <h3>Sin solicitudes pendientes</h3>
+                <p>Todos los apartados de sala de juntas han sido procesados.</p>
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-pendientes" class="admin-table hidden">
+                    <thead>
+                        <tr>
+                            <th>Departamento</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Contacto</th>
+                            <th>Motivo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-pendientes">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <h2>Historial Completo de Reservaciones</h2>
+            <p class="section-desc">Listado de todos los apartados registrados en el sistema.</p>
+
+            <div id="loading-historial" class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-historial" class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Departamento</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Motivo</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-historial">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+        </section>
+
+        <!-- Sección de Configuración de Correos -->
+        <section class="dashboard-section">
+            <h2>Configuración de Correos para Notificaciones</h2>
+            <p class="section-desc">Gestiona las direcciones a las que se enviarán las alertas automáticas.</p>
+            
+            <form id="form-config-correos" class="card" style="padding: 2rem; border: 1px solid var(--border-accent); box-shadow: var(--shadow-soft);">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="config-admin-emails">Correos de Administración (Alertas Nuevas Reservaciones) *</label>
+                    <input type="text" id="config-admin-emails" placeholder="ejemplo1@empresa.com, ejemplo2@empresa.com" required>
+                    <small class="help-text">Puedes ingresar varios correos separados por comas (,)</small>
+                </div>
+                
+                <h3 style="font-size: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-weight: 700; color: var(--text-primary);">Correos por Departamento</h3>
+                
+                <div class="form-row" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="correo-marketing">Marketing *</label>
+                        <input type="email" id="correo-marketing" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo-almacen">Almacén *</label>
+                        <input type="email" id="correo-almacen" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo-taller">Taller y Contraloría *</label>
+                        <input type="email" id="correo-taller" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo-rh">Recursos Humanos *</label>
+                        <input type="email" id="correo-rh" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo-ti">TI *</label>
+                        <input type="email" id="correo-ti" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo-abastecimiento">Abastecimiento y Desempeño Comercial *</label>
+                        <input type="email" id="correo-abastecimiento" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions" style="display: flex; align-items: center; gap: 1.5rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Guardar Configuración de Correos</button>
+                    <span id="config-status-msg" class="status-msg hidden" style="font-weight: 600; font-size: 0.95rem; transition: opacity 0.3s ease;"></span>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        // Funciones auxiliares para el Panel Admin
+        let citasPendientes = [];
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-MX';
+                
+                const voices = window.speechSynthesis.getVoices();
+                const spanishVoices = voices.filter(v => v.lang.toLowerCase().startsWith('es'));
+                
+                if (spanishVoices.length > 0) {
+                    spanishVoices.sort((a, b) => {
+                        const nameA = a.name.toLowerCase();
+                        const nameB = b.name.toLowerCase();
+                        
+                        const isOnlineA = nameA.includes('online') || nameA.includes('natural') || nameA.includes('neural') || nameA.includes('multilingual');
+                        const isOnlineB = nameB.includes('online') || nameB.includes('natural') || nameB.includes('neural') || nameB.includes('multilingual');
+                        if (isOnlineA && !isOnlineB) return -1;
+                        if (!isOnlineA && isOnlineB) return 1;
+                        
+                        const isGoogleA = nameA.includes('google');
+                        const isGoogleB = nameB.includes('google');
+                        if (isGoogleA && !isGoogleB) return -1;
+                        if (!isGoogleA && isGoogleB) return 1;
+                        
+                        const isMicrosoftA = nameA.includes('microsoft');
+                        const isMicrosoftB = nameB.includes('microsoft');
+                        if (isMicrosoftA && !isMicrosoftB) return -1;
+                        if (!isMicrosoftA && isMicrosoftB) return 1;
+                        
+                        return 0;
+                    });
+                    
+                    utterance.voice = spanishVoices[0];
+                    utterance.pitch = 1.0; 
+                    utterance.rate = 0.95; // Un poco más lento para mejor naturalidad
+                }
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function formatFechaParaVoz(fechaStr) {
+            if (!fechaStr) return '';
+            const [year, month, day] = fechaStr.split('-');
+            const meses = [
+                'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+            ];
+            const mesIndex = parseInt(month, 10) - 1;
+            return `${parseInt(day, 10)} de ${meses[mesIndex] || ''}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Precargar voces
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+            
+            cargarPendientes();
+            cargarHistorial();
+            cargarConfiguracionCorreos();
+            
+            // Listener para formulario de correos
+            document.getElementById('form-config-correos').addEventListener('submit', guardarConfiguracionCorreos);
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast show toast-${type}`;
+            setTimeout(() => {
+                toast.className = 'toast hidden';
+            }, 4000);
+        }
+
+        function formatFecha(fechaStr) {
+            const [year, month, day] = fechaStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        async function cargarPendientes() {
+            const loading = document.getElementById('loading-pendientes');
+            const noPendientes = document.getElementById('no-pendientes');
+            const tabla = document.getElementById('tabla-pendientes');
+            const lista = document.getElementById('lista-pendientes');
+
+            try {
+                const response = await fetch('/api/citas/pendientes');
+                if (!response.ok) throw new Error('Error al cargar pendientes');
+                const citas = await response.json();
+                citasPendientes = citas;
+
+                loading.classList.add('hidden');
+                lista.innerHTML = '';
+
+                if (citas.length === 0) {
+                    noPendientes.classList.remove('hidden');
+                    tabla.classList.add('hidden');
+                    return;
+                }
+
+                noPendientes.classList.add('hidden');
+                tabla.classList.remove('hidden');
+
+                citas.forEach(cita => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="font-bold">${cita.departamento}</td>
+                        <td>${formatFecha(cita.fecha)}</td>
+                        <td>${cita.hora_inicio} - ${cita.hora_fin}</td>
+                        <td class="text-muted">${cita.correo_contacto || 'N/A'}</td>
+                        <td>${cita.motivo || '<span class="text-muted italic">Sin especificar</span>'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-success btn-sm" onclick="procesarCita(${cita.id}, 'autorizar')">Autorizar</button>
+                                <button class="btn btn-danger btn-sm" onclick="procesarCita(${cita.id}, 'rechazar')">Rechazar</button>
+                            </div>
+                        </td>
+                    `;
+                    lista.appendChild(tr);
+                });
+            } catch (err) {
+                loading.textContent = 'Error al cargar las solicitudes pendientes.';
+                console.error(err);
+            }
+        }
+
+        async function cargarHistorial() {
+            const loading = document.getElementById('loading-historial');
+            const lista = document.getElementById('lista-historial');
+
+            try {
+                const response = await fetch('/api/citas/historial');
+                if (!response.ok) throw new Error('Error al cargar historial');
+                const citas = await response.json();
+
+                loading.classList.add('hidden');
+                lista.innerHTML = '';
+
+                citas.forEach(cita => {
+                    const tr = document.createElement('tr');
+                    let statusClass = 'status-pending';
+                    if (cita.estatus === 'Autorizado') statusClass = 'status-approved';
+                    if (cita.estatus === 'Rechazado') statusClass = 'status-rejected';
+
+                    tr.innerHTML = `
+                        <td class="font-bold">${cita.departamento}</td>
+                        <td>${formatFecha(cita.fecha)}</td>
+                        <td>${cita.hora_inicio} - ${cita.hora_fin}</td>
+                        <td>${cita.motivo || '<span class="text-muted italic">Sin especificar</span>'}</td>
+                        <td><span class="status-badge ${statusClass}">${cita.estatus}</span></td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarCita(${cita.id})">Eliminar</button>
+                        </td>
+                    `;
+                    lista.appendChild(tr);
+                });
+            } catch (err) {
+                loading.textContent = 'Error al cargar el historial.';
+                console.error(err);
+            }
+        }
+
+        async function procesarCita(id, accion) {
+            const cita = citasPendientes.find(c => c.id === id);
+            try {
+                const response = await fetch(`/api/citas/${id}/${accion}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    showToast(result.error || 'Ocurrió un error', 'error');
+                } else {
+                    showToast(`Reservación ${accion === 'autorizar' ? 'autorizada' : 'rechazada'} con éxito`, 'success');
+                    
+                    if (cita) {
+                        const fechaVoz = formatFechaParaVoz(cita.fecha);
+                        if (accion === 'autorizar') {
+                            speakText(`Se ha autorizado la solicitud del departamento de ${cita.departamento} con fecha ${fechaVoz} y hora ${cita.hora_inicio}`);
+                        } else if (accion === 'rechazar') {
+                            speakText(`Se ha rechazado la solicitud del departamento de ${cita.departamento} con fecha ${fechaVoz} y hora ${cita.hora_inicio}`);
+                        }
+                    }
+                    
+                    cargarPendientes();
+                    cargarHistorial();
+                }
+            } catch (err) {
+                showToast('Error de comunicación con el servidor', 'error');
+                console.error(err);
+            }
+        }
+
+        async function eliminarCita(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar permanentemente esta reservación?')) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/citas/${id}/eliminar`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    showToast(result.error || 'Ocurrió un error al eliminar', 'error');
+                } else {
+                    showToast('Reservación eliminada correctamente', 'success');
+                    cargarPendientes();
+                    cargarHistorial();
+                }
+            } catch (err) {
+                showToast('Error de comunicación con el servidor', 'error');
+                console.error(err);
+            }
+        }
+
+        async function cargarConfiguracionCorreos() {
+            try {
+                const response = await fetch('/api/config/correos');
+                if (!response.ok) throw new Error('Error al cargar la configuración de correos');
+                const config = await response.json();
+                
+                document.getElementById('config-admin-emails').value = config.admin_destinatarios;
+                
+                // Mapear correos a cada input
+                document.getElementById('correo-marketing').value = config.departamentos['MARKETING'] || '';
+                document.getElementById('correo-almacen').value = config.departamentos['ALMACEN'] || '';
+                document.getElementById('correo-taller').value = config.departamentos['TALLER Y CONTRALORIA'] || '';
+                document.getElementById('correo-rh').value = config.departamentos['RECURSOS HUMANOS'] || '';
+                document.getElementById('correo-ti').value = config.departamentos['TI'] || '';
+                document.getElementById('correo-abastecimiento').value = config.departamentos['ABASTECIMIENTO Y DESEMPEÑO COMERCIAL'] || '';
+            } catch (err) {
+                showToast('Error al cargar la configuración de correos', 'error');
+                console.error(err);
+            }
+        }
+
+        async function guardarConfiguracionCorreos(e) {
+            e.preventDefault();
+            
+            const statusMsg = document.getElementById('config-status-msg');
+            statusMsg.textContent = 'Guardando cambios...';
+            statusMsg.style.color = 'var(--text-muted)';
+            statusMsg.classList.remove('hidden');
+            
+            const payload = {
+                admin_destinatarios: document.getElementById('config-admin-emails').value,
+                departamentos: {
+                    'MARKETING': document.getElementById('correo-marketing').value,
+                    'ALMACEN': document.getElementById('correo-almacen').value,
+                    'TALLER Y CONTRALORIA': document.getElementById('correo-taller').value,
+                    'RECURSOS HUMANOS': document.getElementById('correo-rh').value,
+                    'TI': document.getElementById('correo-ti').value,
+                    'ABASTECIMIENTO Y DESEMPEÑO COMERCIAL': document.getElementById('correo-abastecimiento').value
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/config/correos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    statusMsg.textContent = result.error || 'Ocurrió un error al guardar';
+                    statusMsg.style.color = '#ef4444'; // Red
+                    showToast(result.error || 'Ocurrió un error al guardar', 'error');
+                } else {
+                    statusMsg.textContent = '✓ Cambios guardados con éxito';
+                    statusMsg.style.color = '#10b981'; // Green (Emerald)
+                    showToast('Configuración de correos guardada con éxito', 'success');
+                }
+                
+                setTimeout(() => {
+                    statusMsg.classList.add('hidden');
+                }, 4000);
+            } catch (err) {
+                statusMsg.textContent = 'Error de conexión';
+                statusMsg.style.color = '#ef4444'; // Red
+                showToast('Error de comunicación con el servidor', 'error');
+                console.error(err);
+                
+                setTimeout(() => {
+                    statusMsg.classList.add('hidden');
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>

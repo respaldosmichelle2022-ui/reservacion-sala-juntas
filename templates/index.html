@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservación de Sala de Juntas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo" style="display: flex; align-items: center; gap: 1rem;">
+                <img src="{{ url_for('static', filename='img/logo-michelle.png') }}" alt="Logo Michelle" style="height: 40px; width: auto; object-fit: contain;">
+                <h1>Sala de Juntas <span class="badge badge-rh">Recursos Humanos</span></h1>
+            </div>
+            <nav class="nav-actions">
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Panel Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Panel Izquierdo: Leyenda y Crear Reserva -->
+        <aside class="sidebar">
+            <div class="card card-info">
+                <h3>Reserva de Sala de Juntas</h3>
+                <p>Bienvenido al portal de reservación. Selecciona cualquier espacio libre en el calendario semanal para solicitar tu reserva.</p>
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <span class="legend-color legend-available"></span>
+                        <span>Disponible (Haz clic para reservar)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-pending"></span>
+                        <span>Preaprobatorio (En espera de autorización)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-approved"></span>
+                        <span>Autorizado (No disponible)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Reserva Rápida -->
+            <div class="card card-form">
+                <h3>Solicitar Apartado</h3>
+                <form id="form-reservar">
+                    <div class="form-group">
+                        <label for="departamento">Departamento *</label>
+                        <select id="departamento" required>
+                            <option value="">Selecciona tu departamento</option>
+                            {% for dept in departamentos %}
+                            <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha">Fecha *</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hora_inicio">Desde *</label>
+                            <select id="hora_inicio" required>
+                                <option value="" class="placeholder-empty" style="display:none;">Sin horarios hoy</option>
+                                <option value="08:00">08:00 AM</option>
+                                <option value="08:30">08:30 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="12:30">12:30 PM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="13:30">01:30 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora_fin">Hasta *</label>
+                            <select id="hora_fin" required>
+                                <option value="" class="placeholder-empty" style="display:none;">Sin horarios hoy</option>
+                                <option value="08:30">08:30 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="12:30">12:30 PM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="13:30">01:30 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                                <option value="16:00">04:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="motivo">Motivo / Asunto</label>
+                        <textarea id="motivo" placeholder="Reunión mensual, capacitación, etc." rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Solicitar Reservación</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Panel Derecho: Calendario Semanal Interactivo -->
+        <section class="calendar-section">
+            <div class="calendar-header">
+                <div class="week-navigation">
+                    <button id="btn-prev-week" class="btn btn-secondary btn-icon">◀</button>
+                    <h2 id="current-week-label">Semana del -- de --</h2>
+                    <button id="btn-next-week" class="btn btn-secondary btn-icon">▶</button>
+                </div>
+                <button id="btn-today" class="btn btn-secondary">Hoy</button>
+            </div>
+
+            <div class="calendar-grid-container">
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Cabeceras de días y horas se llenan por JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de confirmación rápida (Detalles de cita ocupada) -->
+    <div id="booking-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Detalles de la Reservación</h3>
+                <button class="close-modal" id="close-modal">×</button>
+            </div>
+            <div class="modal-body" id="modal-details">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nueva Reservación (Doble Clic) -->
+    <div id="new-booking-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Nueva Solicitud de Apartado</h3>
+                <button class="close-modal" id="close-new-booking-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-modal-reservar">
+                    <input type="hidden" id="modal-fecha">
+                    <input type="hidden" id="modal-hora-inicio">
+                    <input type="hidden" id="modal-hora-fin">
+                    
+                    <div class="modal-detail-item">
+                        <span class="detail-label">Fecha Seleccionada</span>
+                        <span class="detail-value font-bold" id="modal-fecha-texto">--/--/----</span>
+                    </div>
+                    <div class="modal-detail-item" style="margin-bottom: 1rem;">
+                        <span class="detail-label">Horario Seleccionado</span>
+                        <span class="detail-value font-bold" id="modal-horario-texto">--:-- a --:--</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modal-departamento">Departamento *</label>
+                        <select id="modal-departamento" required>
+                            <option value="">Selecciona tu departamento</option>
+                            {% for dept in departamentos %}
+                            <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+
+                    
+                    <div class="form-group">
+                        <label for="modal-motivo">Motivo / Asunto</label>
+                        <textarea id="modal-motivo" placeholder="Reunión mensual, capacitación, etc." rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Confirmar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
