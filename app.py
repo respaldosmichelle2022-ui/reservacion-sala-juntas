@@ -55,31 +55,36 @@ with app.app_context():
 # Función para enviar correo en segundo plano
 def send_email_async(subject, recipient, body_html):
     def send():
-        resend_api_key = os.environ.get('RESEND_API_KEY')
-        if resend_api_key:
+        brevo_api_key = os.environ.get('BREVO_API_KEY')
+        if brevo_api_key:
             try:
                 import urllib.request
                 import json
                 
-                url = "https://api.resend.com/emails"
+                url = "https://api.brevo.com/v3/smtp/email"
                 headers = {
-                    "Authorization": f"Bearer {resend_api_key}",
-                    "Content-Type": "application/json"
+                    "api-key": brevo_api_key,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 }
                 
-                # Por defecto en cuenta gratuita (sandbox) se usa onboarding@resend.dev
-                # Si el usuario configura un dominio personalizado en Resend, puede usar otra dirección
-                sender = os.environ.get('MAIL_DEFAULT_SENDER', 'onboarding@resend.dev')
-                if not sender or '@gmail.com' in sender or '@empresa.com' in sender or 'onboarding@resend.dev' in sender:
-                    sender = 'onboarding@resend.dev'
-                
-                sender_display = f"Sala de Juntas Michelle <{sender}>"
+                # Obtener el correo emisor verificado en Brevo (por defecto, tu correo registrado)
+                sender_email = os.environ.get('MAIL_USERNAME', 'respaldosmichelle2022@gmail.com')
+                if not sender_email or '@' not in sender_email:
+                    sender_email = 'respaldosmichelle2022@gmail.com'
                 
                 payload = {
-                    "from": sender_display,
-                    "to": recipient,
+                    "sender": {
+                        "name": "Sala de Juntas Michelle",
+                        "email": sender_email
+                    },
+                    "to": [
+                        {
+                            "email": recipient
+                        }
+                    ],
                     "subject": subject,
-                    "html": body_html
+                    "htmlContent": body_html
                 }
                 
                 req = urllib.request.Request(
@@ -90,10 +95,10 @@ def send_email_async(subject, recipient, body_html):
                 )
                 with urllib.request.urlopen(req, timeout=15) as response:
                     res_data = response.read().decode('utf-8')
-                    print(f"Correo enviado via Resend exitosamente a {recipient}. Respuesta: {res_data}")
+                    print(f"Correo enviado via Brevo exitosamente a {recipient}. Respuesta: {res_data}")
                 return
             except Exception as e:
-                print(f"Error al enviar correo por Resend: {e}")
+                print(f"Error al enviar correo por Brevo: {e}")
                 return
 
         # Fallback a SMTP
