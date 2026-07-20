@@ -113,9 +113,11 @@ def index():
 def login():
     if request.method == 'POST':
         password = request.form.get('password')
-        # Contraseña sencilla de admin configurada o una por defecto
-        admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin123')
-        if password == admin_pass:
+        # Soporta contraseñas múltiples separadas por comas (ej. "Yamir8122,claveRH")
+        admin_pass_env = os.environ.get('ADMIN_PASSWORD', 'admin123')
+        allowed_passwords = [p.strip() for p in admin_pass_env.split(',') if p.strip()]
+        
+        if password in allowed_passwords:
             session['admin_logged_in'] = True
             return redirect(url_for('admin'))
         else:
