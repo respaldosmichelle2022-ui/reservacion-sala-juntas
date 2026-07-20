@@ -95,16 +95,23 @@ def send_email_async(subject, recipient, body_html):
                 )
                 with urllib.request.urlopen(req, timeout=15) as response:
                     res_data = response.read().decode('utf-8')
-                    print(f"Correo enviado via Brevo exitosamente a {recipient}. Respuesta: {res_data}")
+                    print(f"Correo enviado via Brevo exitosamente a {recipient}. Respuesta: {res_data}", flush=True)
                 return
             except Exception as e:
-                print(f"Error al enviar correo por Brevo: {e}")
+                # Si ocurre un HTTPError, intentar leer el cuerpo de la respuesta para saber el error exacto de Brevo
+                error_body = ""
+                if hasattr(e, 'read'):
+                    try:
+                        error_body = f" - Detalle: {e.read().decode('utf-8')}"
+                    except Exception:
+                        pass
+                print(f"Error al enviar correo por Brevo: {e}{error_body}", flush=True)
                 return
 
         # Fallback a SMTP
         if not app.config['MAIL_SERVER'] or not app.config['MAIL_USERNAME'] or not app.config['MAIL_PASSWORD']:
-            print("SMTP no configurado en variables de entorno. Notificación impresa en consola:")
-            print(f"PARA: {recipient}\nASUNTO: {subject}\nCONTENIDO: {body_html}\n" + "-"*40)
+            print("SMTP no configurado en variables de entorno. Notificación impresa en consola:", flush=True)
+            print(f"PARA: {recipient}\nASUNTO: {subject}\nCONTENIDO: {body_html}\n" + "-"*40, flush=True)
             return
         
         try:
@@ -127,9 +134,9 @@ def send_email_async(subject, recipient, body_html):
                 addr_info = socket.getaddrinfo(mail_server, server_port, socket.AF_INET, socket.SOCK_STREAM)
                 if addr_info:
                     mail_server = addr_info[0][4][0]
-                    print(f"Servidor SMTP resuelto a IPv4: {mail_server}")
+                    print(f"Servidor SMTP resuelto a IPv4: {mail_server}", flush=True)
             except Exception as dns_err:
-                print(f"Advertencia al resolver DNS de correo: {dns_err}")
+                print(f"Advertencia al resolver DNS de correo: {dns_err}", flush=True)
 
             if app.config['MAIL_USE_TLS']:
                 server = smtplib.SMTP(mail_server, server_port, timeout=15)
@@ -146,9 +153,9 @@ def send_email_async(subject, recipient, body_html):
             server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
             server.sendmail(msg['From'], recipient, msg.as_string())
             server.quit()
-            print(f"Correo enviado exitosamente a {recipient}")
+            print(f"Correo enviado exitosamente a {recipient}", flush=True)
         except Exception as e:
-            print(f"Error al enviar correo: {e}")
+            print(f"Error al enviar correo: {e}", flush=True)
 
     threading.Thread(target=send).start()
 
