@@ -335,6 +335,27 @@ def create_cita():
             'error': f'El horario solicitado entra en conflicto con una reservación de {citas_conflicto.departamento} ({citas_conflicto.hora_inicio.strftime("%H:%M")} - {citas_conflicto.hora_fin.strftime("%H:%M")})'
         }), 400
 
+    # 3.5 Validar límite de 3 horas por departamento por día (excluyendo citas rechazadas)
+    citas_existentes = Cita.query.filter(
+        Cita.departamento == departamento,
+        Cita.fecha == fecha,
+        Cita.estatus != 'Rechazado'
+    ).all()
+
+    horas_reservadas = 0.0
+    for cita in citas_existentes:
+        duracion = (datetime.combine(fecha, cita.hora_fin) - datetime.combine(fecha, cita.hora_inicio)).total_seconds() / 3600.0
+        horas_reservadas += duracion
+
+    nueva_duracion = (datetime.combine(fecha, hora_fin) - datetime.combine(fecha, hora_inicio)).total_seconds() / 3600.0
+
+    if horas_reservadas + nueva_duracion > 3.0:
+        if horas_reservadas > 0:
+            msg_error = f'El departamento {departamento} ya tiene {horas_reservadas:g} horas reservadas o solicitadas para este día. Con esta nueva reservación de {nueva_duracion:g} horas, superaría el límite permitido de 3 horas diarias.'
+        else:
+            msg_error = f'La reservación solicitada es de {nueva_duracion:g} horas, lo cual supera el límite permitido de 3 horas diarias por departamento.'
+        return jsonify({'error': msg_error}), 400
+
     # Crear la cita
     nueva_cita = Cita(
         departamento=departamento,

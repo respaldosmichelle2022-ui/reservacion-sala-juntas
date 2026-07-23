@@ -170,9 +170,22 @@ function configurarEventos() {
         }
     });
 
-    // Cambios dinámicos en el formulario de horas
-    document.getElementById('fecha').addEventListener('change', actualizarHorasDisponibles);
-    document.getElementById('hora_inicio').addEventListener('change', actualizarHorasDisponibles);
+    // Cambios dinámicos en el formulario lateral
+    document.getElementById('fecha').addEventListener('change', () => {
+        actualizarHorasDisponibles();
+    });
+    document.getElementById('departamento').addEventListener('change', () => {
+        actualizarHorasDisponibles();
+    });
+    document.getElementById('hora_inicio').addEventListener('change', () => {
+        actualizarHorasDisponibles();
+    });
+    document.getElementById('hora_fin').addEventListener('change', actualizarTextoDuracion);
+
+    // Cambios dinámicos en el formulario del modal
+    document.getElementById('modal-departamento').addEventListener('change', actualizarHorasDisponiblesModal);
+    document.getElementById('modal-hora-inicio').addEventListener('change', actualizarHorasDisponiblesModal);
+    document.getElementById('modal-hora-fin').addEventListener('change', actualizarTextoDuracionModal);
 }
 
 function actualizarEtiquetaSemana() {
@@ -430,6 +443,9 @@ function actualizarHorasDisponibles() {
     // Filtrar reservaciones del día seleccionado (excluyendo rechazadas)
     const citasDelDia = reservaciones.filter(r => r.fecha === fechaVal);
     
+    const deptoVal = document.getElementById('departamento').value;
+    const horasRestantes = calcularHorasRestantesDepartamento(deptoVal, fechaVal);
+
     // 1. Filtrar las opciones de HORA INICIO
     let primerInicioValido = null;
     Array.from(horaInicioSelect.options).forEach(option => {
@@ -438,8 +454,12 @@ function actualizarHorasDisponibles() {
         const optValDecimal = parseTimeToDecimal(option.value);
         let valido = true;
         
+        if (horasRestantes <= 0) {
+            valido = false;
+        }
+        
         // Si es hoy, no permitir horas pasadas
-        if (isToday && optValDecimal < currentHourDecimal) {
+        if (valido && isToday && optValDecimal < currentHourDecimal) {
             valido = false;
         }
         
@@ -486,7 +506,7 @@ function actualizarHorasDisponibles() {
         }
     }
     
-    // 2. Filtrar las opciones de HORA FIN según la hora de inicio seleccionada
+    // 2. Filtrar las opciones de HORA FIN según la hora de inicio seleccionada y el límite del departamento
     const selectedInicioVal = horaInicioSelect.value;
     if (!selectedInicioVal) {
         // Si no hay hora de inicio válida, deshabilitar hora fin
@@ -495,6 +515,7 @@ function actualizarHorasDisponibles() {
             option.disabled = true;
         });
         horaFinSelect.value = '';
+        actualizarTextoDuracion();
         return;
     }
     
@@ -508,6 +529,9 @@ function actualizarHorasDisponibles() {
             limiteSiguienteCita = citaStart;
         }
     });
+
+    // Limitar por el tiempo restante permitido para el departamento hoy (máximo 3 horas diarias)
+    limiteSiguienteCita = Math.min(limiteSiguienteCita, inicioDecimal + horasRestantes);
     
     let primerFinValido = null;
     Array.from(horaFinSelect.options).forEach(option => {
@@ -515,7 +539,7 @@ function actualizarHorasDisponibles() {
         
         const optValDecimal = parseTimeToDecimal(option.value);
         
-        // Hora fin debe ser mayor a la de inicio Y no puede exceder el inicio de la siguiente cita ocupada
+        // Hora fin debe ser mayor a la de inicio Y no puede exceder el inicio de la siguiente cita ocupada ni el límite del dpto
         const valido = optValDecimal > inicioDecimal && optValDecimal <= limiteSiguienteCita;
         
         if (valido) {
@@ -549,31 +573,256 @@ function actualizarHorasDisponibles() {
             horaFinSelect.value = '';
         }
     }
+
+    actualizarTextoDuracion();
 }
 
 function abrirModalCrearCita(fecha, horaInicio, horaFin) {
     document.getElementById('modal-fecha').value = fecha;
-    document.getElementById('modal-hora-inicio').value = horaInicio;
-    document.getElementById('modal-hora-fin').value = horaFin;
+    document.getElementById('modal-departamento').value = '';
     
     // Formatear fecha para el texto visual (DD/MM/YYYY)
     const [year, month, day] = fecha.split('-');
     document.getElementById('modal-fecha-texto').textContent = `${day}/${month}/${year}`;
     
-    // Convertir horas a formato visual AM/PM
-    const formatAMPM = (timeStr) => {
-        let [h, m] = timeStr.split(':').map(Number);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12;
-        h = h ? h : 12; // 0 debe ser 12
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
-    };
-
-    document.getElementById('modal-horario-texto').textContent = `${formatAMPM(horaInicio)} a ${formatAMPM(horaFin)}`;
+    // Pre-poblar y filtrar selectores del modal
+    document.getElementById('modal-hora-inicio').value = horaInicio;
+    actualizarHorasDisponiblesModal();
+    
+    document.getElementById('modal-hora-fin').value = horaFin;
+    actualizarHorasDisponiblesModal();
     
     // Abrir modal
     document.getElementById('new-booking-modal').classList.remove('hidden');
     document.getElementById('modal-departamento').focus();
+}
+
+function calcularHorasRestantesDepartamento(departamento, fecha) {
+    if (!departamento || !fecha) return 3.0;
+    const citasDelDia = reservaciones.filter(r => r.fecha === fecha && r.departamento === departamento && r.estatus !== 'Rechazado');
+    let horasReservadas = 0.0;
+    citasDelDia.forEach(cita => {
+        const start = parseTimeToDecimal(cita.hora_inicio);
+        const end = parseTimeToDecimal(cita.hora_fin);
+        horasReservadas += (end - start);
+    });
+    return Math.max(0, 3.0 - horasReservadas);
+}
+
+function actualizarTextoDuracion() {
+    const horaInicioSelect = document.getElementById('hora_inicio');
+    const horaFinSelect = document.getElementById('hora_fin');
+    const duracionDiv = document.getElementById('duracion-seleccionada');
+    const deptoSelect = document.getElementById('departamento');
+    const fechaInput = document.getElementById('fecha');
+
+    const inicioVal = horaInicioSelect.value;
+    const finVal = horaFinSelect.value;
+    const deptoVal = deptoSelect.value;
+    const fechaVal = fechaInput.value;
+
+    if (!inicioVal || !finVal) {
+        duracionDiv.style.display = 'none';
+        return;
+    }
+
+    const inicio = parseTimeToDecimal(inicioVal);
+    const fin = parseTimeToDecimal(finVal);
+    const duracion = fin - inicio;
+
+    if (duracion <= 0) {
+        duracionDiv.style.display = 'none';
+        return;
+    }
+
+    let texto = `Duración seleccionada: ${duracion} ${duracion === 1 ? 'hora' : 'horas'}`;
+    if (deptoVal && fechaVal) {
+        const restantes = calcularHorasRestantesDepartamento(deptoVal, fechaVal);
+        const disponiblesDespues = Math.max(0, restantes - duracion);
+        texto += ` | Límite restante hoy: ${disponiblesDespues} ${disponiblesDespues === 1 ? 'hora' : 'horas'}`;
+    }
+
+    duracionDiv.innerHTML = `<span>${texto}</span>`;
+    duracionDiv.style.display = 'flex';
+}
+
+function actualizarTextoDuracionModal() {
+    const horaInicioSelect = document.getElementById('modal-hora-inicio');
+    const horaFinSelect = document.getElementById('modal-hora-fin');
+    const duracionDiv = document.getElementById('modal-duracion-seleccionada');
+    const deptoSelect = document.getElementById('modal-departamento');
+    const fechaVal = document.getElementById('modal-fecha').value;
+
+    const inicioVal = horaInicioSelect.value;
+    const finVal = horaFinSelect.value;
+    const deptoVal = deptoSelect.value;
+
+    if (!inicioVal || !finVal) {
+        duracionDiv.style.display = 'none';
+        return;
+    }
+
+    const inicio = parseTimeToDecimal(inicioVal);
+    const fin = parseTimeToDecimal(finVal);
+    const duracion = fin - inicio;
+
+    if (duracion <= 0) {
+        duracionDiv.style.display = 'none';
+        return;
+    }
+
+    let texto = `Duración seleccionada: ${duracion} ${duracion === 1 ? 'hora' : 'horas'}`;
+    if (deptoVal && fechaVal) {
+        const restantes = calcularHorasRestantesDepartamento(deptoVal, fechaVal);
+        const disponiblesDespues = Math.max(0, restantes - duracion);
+        texto += ` | Límite restante hoy: ${disponiblesDespues} ${disponiblesDespues === 1 ? 'hora' : 'horas'}`;
+    }
+
+    duracionDiv.innerHTML = `<span>${texto}</span>`;
+    duracionDiv.style.display = 'flex';
+}
+
+function actualizarHorasDisponiblesModal() {
+    const fechaVal = document.getElementById('modal-fecha').value;
+    const deptoSelect = document.getElementById('modal-departamento');
+    const horaInicioSelect = document.getElementById('modal-hora-inicio');
+    const horaFinSelect = document.getElementById('modal-hora-fin');
+    
+    if (!fechaVal) return;
+    
+    const deptoVal = deptoSelect.value;
+    const today = new Date();
+    const todayStr = formatFechaISO(today);
+    const isToday = fechaVal === todayStr;
+    const currentHourDecimal = today.getHours() + today.getMinutes() / 60;
+    
+    const citasDelDia = reservaciones.filter(r => r.fecha === fechaVal);
+    
+    const horasRestantes = calcularHorasRestantesDepartamento(deptoVal, fechaVal);
+    
+    // 1. Filtrar las opciones de HORA INICIO
+    let primerInicioValido = null;
+    Array.from(horaInicioSelect.options).forEach(option => {
+        if (option.classList.contains('placeholder-empty')) return;
+        
+        const optValDecimal = parseTimeToDecimal(option.value);
+        let valido = true;
+        
+        if (horasRestantes <= 0) {
+            valido = false;
+        }
+        
+        // Si es hoy, no permitir horas pasadas
+        if (valido && isToday && optValDecimal < currentHourDecimal) {
+            valido = false;
+        }
+        
+        // No traslaparse con reservaciones existentes
+        if (valido) {
+            citasDelDia.forEach(cita => {
+                const citaStart = parseTimeToDecimal(cita.hora_inicio);
+                const citaEnd = parseTimeToDecimal(cita.hora_fin);
+                if (optValDecimal >= citaStart && optValDecimal < citaEnd) {
+                    valido = false;
+                }
+            });
+        }
+        
+        if (valido) {
+            option.style.display = '';
+            option.disabled = false;
+            if (!primerInicioValido) primerInicioValido = option.value;
+        } else {
+            option.style.display = 'none';
+            option.disabled = true;
+        }
+    });
+
+    const emptyStartPlaceholder = horaInicioSelect.querySelector('.placeholder-empty');
+    if (emptyStartPlaceholder) {
+        if (!primerInicioValido) {
+            emptyStartPlaceholder.style.display = '';
+            emptyStartPlaceholder.disabled = false;
+        } else {
+            emptyStartPlaceholder.style.display = 'none';
+            emptyStartPlaceholder.disabled = true;
+        }
+    }
+    
+    // Si la hora de inicio actual no es válida, cambiarla
+    const currentInicioOption = horaInicioSelect.options[horaInicioSelect.selectedIndex];
+    if (!currentInicioOption || currentInicioOption.disabled) {
+        if (primerInicioValido) {
+            horaInicioSelect.value = primerInicioValido;
+        } else {
+            horaInicioSelect.value = '';
+        }
+    }
+    
+    // 2. Filtrar las opciones de HORA FIN según la hora de inicio seleccionada y el límite del departamento
+    const selectedInicioVal = horaInicioSelect.value;
+    if (!selectedInicioVal) {
+        Array.from(horaFinSelect.options).forEach(option => {
+            option.style.display = 'none';
+            option.disabled = true;
+        });
+        horaFinSelect.value = '';
+        actualizarTextoDuracionModal();
+        return;
+    }
+    
+    const inicioDecimal = parseTimeToDecimal(selectedInicioVal);
+    
+    // Encontrar el inicio de la siguiente cita
+    let limiteSiguienteCita = 16.0;
+    citasDelDia.forEach(cita => {
+        const citaStart = parseTimeToDecimal(cita.hora_inicio);
+        if (citaStart > inicioDecimal && citaStart < limiteSiguienteCita) {
+            limiteSiguienteCita = citaStart;
+        }
+    });
+    
+    // Aplicar límite diario del departamento
+    limiteSiguienteCita = Math.min(limiteSiguienteCita, inicioDecimal + horasRestantes);
+    
+    let primerFinValido = null;
+    Array.from(horaFinSelect.options).forEach(option => {
+        if (option.classList.contains('placeholder-empty')) return;
+        
+        const optValDecimal = parseTimeToDecimal(option.value);
+        const valido = optValDecimal > inicioDecimal && optValDecimal <= limiteSiguienteCita;
+        
+        if (valido) {
+            option.style.display = '';
+            option.disabled = false;
+            if (!primerFinValido) primerFinValido = option.value;
+        } else {
+            option.style.display = 'none';
+            option.disabled = true;
+        }
+    });
+
+    const emptyFinPlaceholder = horaFinSelect.querySelector('.placeholder-empty');
+    if (emptyFinPlaceholder) {
+        if (!primerFinValido) {
+            emptyFinPlaceholder.style.display = '';
+            emptyFinPlaceholder.disabled = false;
+        } else {
+            emptyFinPlaceholder.style.display = 'none';
+            emptyFinPlaceholder.disabled = true;
+        }
+    }
+    
+    const currentFinOption = horaFinSelect.options[horaFinSelect.selectedIndex];
+    if (!currentFinOption || currentFinOption.disabled) {
+        if (primerFinValido) {
+            horaFinSelect.value = primerFinValido;
+        } else {
+            horaFinSelect.value = '';
+        }
+    }
+    
+    actualizarTextoDuracionModal();
 }
 
 // Obtener la siguiente fecha laboral disponible para reservar (salta fin de semana y horas pasadas de hoy)

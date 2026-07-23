@@ -107,6 +107,8 @@
                             </select>
                         </div>
                     </div>
+                    <div id="duracion-seleccionada" class="duracion-info" style="display: none;"></div>
+
 
 
 
@@ -162,17 +164,59 @@
             <div class="modal-body">
                 <form id="form-modal-reservar">
                     <input type="hidden" id="modal-fecha">
-                    <input type="hidden" id="modal-hora-inicio">
-                    <input type="hidden" id="modal-hora-fin">
-                    
                     <div class="modal-detail-item">
                         <span class="detail-label">Fecha Seleccionada</span>
                         <span class="detail-value font-bold" id="modal-fecha-texto">--/--/----</span>
                     </div>
-                    <div class="modal-detail-item" style="margin-bottom: 1rem;">
-                        <span class="detail-label">Horario Seleccionado</span>
-                        <span class="detail-value font-bold" id="modal-horario-texto">--:-- a --:--</span>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-hora-inicio">Desde *</label>
+                            <select id="modal-hora-inicio" required>
+                                <option value="" class="placeholder-empty" style="display:none;">Sin horarios hoy</option>
+                                <option value="08:00">08:00 AM</option>
+                                <option value="08:30">08:30 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="12:30">12:30 PM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="13:30">01:30 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-hora-fin">Hasta *</label>
+                            <select id="modal-hora-fin" required>
+                                <option value="" class="placeholder-empty" style="display:none;">Sin horarios hoy</option>
+                                <option value="08:30">08:30 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="09:30">09:30 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="10:30">10:30 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="11:30">11:30 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="12:30">12:30 PM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="13:30">01:30 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="14:30">02:30 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="15:30">03:30 PM</option>
+                                <option value="16:00">04:00 PM</option>
+                            </select>
+                        </div>
                     </div>
+                    <div id="modal-duracion-seleccionada" class="duracion-info" style="margin-top: -0.5rem; margin-bottom: 1rem; display: none;"></div>
+
                     
                     <div class="form-group">
                         <label for="modal-departamento">Departamento *</label>
