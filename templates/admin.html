@@ -59,8 +59,19 @@
         </section>
 
         <section class="dashboard-section">
-            <h2>Dashboard de Estadísticas</h2>
-            <p class="section-desc">Métricas visuales de uso y disponibilidad de la sala de juntas.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <div style="flex: 1; min-width: 250px;">
+                    <h2 style="margin: 0;">Dashboard de Estadísticas</h2>
+                    <p class="section-desc" style="margin: 0.25rem 0 0 0;">Métricas visuales de uso y disponibilidad de la sala de juntas.</p>
+                </div>
+                <div class="form-group" style="margin: 0; min-width: 150px;">
+                    <select id="filtro-tiempo-stats" style="padding: 0.5rem; font-size: 0.9rem; border-radius: var(--radius-sm); border: 1px solid var(--border-accent); background-color: var(--bg-card); color: var(--text-primary); cursor: pointer;">
+                        <option value="mes" selected>Este Mes</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="todos">Todo el Tiempo</option>
+                    </select>
+                </div>
+            </div>
             
             <div id="loading-stats" class="spinner-container">
                 <div class="spinner"></div>
@@ -256,6 +267,12 @@
             
             // Listener para formulario de correos
             document.getElementById('form-config-correos').addEventListener('submit', guardarConfiguracionCorreos);
+            
+            // Listener para el filtro de tiempo del dashboard
+            const timeFilterSelect = document.getElementById('filtro-tiempo-stats');
+            if (timeFilterSelect) {
+                timeFilterSelect.addEventListener('change', filtrarYRenderizarEstadisticas);
+            }
         });
 
         function showToast(message, type = 'success') {
@@ -332,8 +349,8 @@
                 loading.classList.add('hidden');
                 lista.innerHTML = '';
 
-                // Procesar y renderizar estadísticas en el dashboard
-                procesarYRenderizarEstadisticas(citas);
+                // Procesar y renderizar estadísticas filtradas en el dashboard
+                filtrarYRenderizarEstadisticas();
 
                 citas.forEach(cita => {
                     const tr = document.createElement('tr');
@@ -357,6 +374,39 @@
                 loading.textContent = 'Error al cargar el historial.';
                 console.error(err);
             }
+        }
+
+        function filtrarYRenderizarEstadisticas() {
+            const filtro = document.getElementById('filtro-tiempo-stats').value;
+            const hoy = new Date();
+            let citasFiltradas = [...citasHistorial];
+            
+            if (filtro === 'semana') {
+                // Obtener el Lunes de esta semana
+                const diaSemana = hoy.getDay();
+                const diff = hoy.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
+                const lunes = new Date(hoy.getFullYear(), hoy.getMonth(), diff);
+                lunes.setHours(0, 0, 0, 0);
+                
+                const domingo = new Date(lunes);
+                domingo.setDate(lunes.getDate() + 6);
+                domingo.setHours(23, 59, 59, 999);
+                
+                citasFiltradas = citasHistorial.filter(c => {
+                    const fechaCita = new Date(c.fecha + 'T00:00:00');
+                    return fechaCita >= lunes && fechaCita <= domingo;
+                });
+            } else if (filtro === 'mes') {
+                const year = hoy.getFullYear();
+                const month = hoy.getMonth(); // 0-11
+                
+                citasFiltradas = citasHistorial.filter(c => {
+                    const fechaCita = new Date(c.fecha + 'T00:00:00');
+                    return fechaCita.getFullYear() === year && fechaCita.getMonth() === month;
+                });
+            }
+            
+            procesarYRenderizarEstadisticas(citasFiltradas);
         }
 
         function parseTimeToDecimal(timeStr) {
