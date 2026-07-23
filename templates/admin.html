@@ -323,8 +323,8 @@
                         <td>${cita.motivo || '<span class="text-muted italic">Sin especificar</span>'}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-success btn-sm" onclick="procesarCita(${cita.id}, 'autorizar')">Autorizar</button>
-                                <button class="btn btn-danger btn-sm" onclick="procesarCita(${cita.id}, 'rechazar')">Rechazar</button>
+                                <button class="btn btn-success btn-sm" onclick="procesarCita(this, ${cita.id}, 'autorizar')">Autorizar</button>
+                                <button class="btn btn-danger btn-sm" onclick="procesarCita(this, ${cita.id}, 'rechazar')">Rechazar</button>
                             </div>
                         </td>
                     `;
@@ -355,17 +355,24 @@
                 citas.forEach(cita => {
                     const tr = document.createElement('tr');
                     let statusClass = 'status-pending';
-                    if (cita.estatus === 'Autorizado') statusClass = 'status-approved';
-                    if (cita.estatus === 'Rechazado') statusClass = 'status-rejected';
+                    let iconHtml = '⏳ ';
+                    if (cita.estatus === 'Autorizado') {
+                        statusClass = 'status-approved';
+                        iconHtml = '✓ ';
+                    }
+                    if (cita.estatus === 'Rechazado') {
+                        statusClass = 'status-rejected';
+                        iconHtml = '✕ ';
+                    }
 
                     tr.innerHTML = `
                         <td class="font-bold">${cita.departamento}</td>
                         <td>${formatFecha(cita.fecha)}</td>
                         <td>${cita.hora_inicio} - ${cita.hora_fin}</td>
                         <td>${cita.motivo || '<span class="text-muted italic">Sin especificar</span>'}</td>
-                        <td><span class="status-badge ${statusClass}">${cita.estatus}</span></td>
+                        <td><span class="status-badge ${statusClass}">${iconHtml}${cita.estatus}</span></td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="eliminarCita(${cita.id})">Eliminar</button>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarCita(this, ${cita.id})">Eliminar</button>
                         </td>
                     `;
                     lista.appendChild(tr);
@@ -612,7 +619,8 @@
             }
         }
 
-        async function procesarCita(id, accion) {
+        async function procesarCita(btn, id, accion) {
+            const tr = btn.closest('tr');
             const cita = citasPendientes.find(c => c.id === id);
             try {
                 const response = await fetch(`/api/citas/${id}/${accion}`, {
@@ -634,8 +642,16 @@
                         }
                     }
                     
-                    cargarPendientes();
-                    cargarHistorial();
+                    if (tr) {
+                        tr.classList.add('row-fade-out');
+                        setTimeout(async () => {
+                            await cargarPendientes();
+                            await cargarHistorial();
+                        }, 350);
+                    } else {
+                        cargarPendientes();
+                        cargarHistorial();
+                    }
                 }
             } catch (err) {
                 showToast('Error de comunicación con el servidor', 'error');
@@ -643,10 +659,11 @@
             }
         }
 
-        async function eliminarCita(id) {
+        async function eliminarCita(btn, id) {
             if (!confirm('¿Estás seguro de que deseas eliminar permanentemente esta reservación?')) {
                 return;
             }
+            const tr = btn.closest('tr');
             try {
                 const response = await fetch(`/api/citas/${id}/eliminar`, {
                     method: 'POST'
@@ -657,8 +674,16 @@
                     showToast(result.error || 'Ocurrió un error al eliminar', 'error');
                 } else {
                     showToast('Reservación eliminada correctamente', 'success');
-                    cargarPendientes();
-                    cargarHistorial();
+                    if (tr) {
+                        tr.classList.add('row-fade-out');
+                        setTimeout(async () => {
+                            await cargarPendientes();
+                            await cargarHistorial();
+                        }, 350);
+                    } else {
+                        cargarPendientes();
+                        cargarHistorial();
+                    }
                 }
             } catch (err) {
                 showToast('Error de comunicación con el servidor', 'error');
