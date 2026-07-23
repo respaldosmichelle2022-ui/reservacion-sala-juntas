@@ -52,6 +52,28 @@
     --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+[data-theme="dark"] {
+    --bg-main: #09090b;
+    --bg-card: #18181b;
+    --bg-header: #030303;
+    
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    
+    --primary-gradient: linear-gradient(135deg, #a1a1aa 0%, #f4f4f5 100%);
+    --primary-color: #f4f4f5;
+    --primary-hover: #e4e4e7;
+    --primary-light: #27272a;
+    
+    --border-color: #27272a;
+    --border-accent: #3f3f46;
+    
+    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+    --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 4px 12px -5px rgba(0, 0, 0, 0.2);
+}
+
+
 /* Reset y Base */
 * {
     margin: 0;
@@ -979,4 +1001,74 @@ textarea:focus {
     align-items: center;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
 }
+
+/* Dashboard Grid y Tarjetas */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.chart-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 240px;
+}
+
+/* Transición global para cambio de tema */
+body, header, aside, section, main, div, input, select, textarea, button, table, tr, td, th {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Estilos de Switcher/Botón de Tema */
+.btn-theme-toggle {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.btn-theme-toggle:hover {
+    background-color: rgba(255,255,255,0.1);
+    transform: scale(1.05);
+}
+
+[data-theme="dark"] .btn-theme-toggle {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
 

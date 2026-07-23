@@ -3,6 +3,21 @@ let reservaciones = [];
 let lastSelectedDate = '';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar y controlar Tema Oscuro/Claro
+    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    const themeBtn = document.getElementById('btn-theme-toggle');
+    if (themeBtn) {
+        themeBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        themeBtn.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+    }
+
     // Forzar la precarga de voces de síntesis de voz
     if ('speechSynthesis' in window) {
         window.speechSynthesis.getVoices();

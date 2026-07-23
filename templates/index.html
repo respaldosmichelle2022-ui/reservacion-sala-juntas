@@ -14,7 +14,8 @@
                 <img src="{{ url_for('static', filename='img/logo-michelle.png') }}" alt="Logo Michelle" style="height: 40px; width: auto; object-fit: contain;">
                 <h1>Sala de Juntas <span class="badge badge-rh">Recursos Humanos</span></h1>
             </div>
-            <nav class="nav-actions">
+            <nav class="nav-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="btn-theme-toggle" class="btn-theme-toggle" title="Cambiar Tema">🌙</button>
                 <a href="{{ url_for('admin') }}" class="btn btn-secondary">Panel Admin</a>
             </nav>
         </div>
