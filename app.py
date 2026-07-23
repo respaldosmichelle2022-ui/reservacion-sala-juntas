@@ -19,7 +19,7 @@ DEPARTAMENTOS_PERMITIDOS = [
     'ALMACEN',
     'TALLER Y CONTRALORIA',
     'RECURSOS HUMANOS',
-    'TI',
+    'TECNOLOGÍAS DE LA INFORMACIÓN (TI)',
     'ABASTECIMIENTO Y DESEMPEÑO COMERCIAL'
 ]
 
@@ -35,6 +35,22 @@ with app.app_context():
         )
         db.session.add(config_admin)
         
+    # Migración de TI a TECNOLOGÍAS DE LA INFORMACIÓN (TI)
+    citas_viejas = Cita.query.filter_by(departamento='TI').all()
+    for cita in citas_viejas:
+        cita.departamento = 'TECNOLOGÍAS DE LA INFORMACIÓN (TI)'
+        
+    correo_viejo = CorreoDepartamento.query.get('TI')
+    if correo_viejo:
+        nuevo_correo = CorreoDepartamento.query.get('TECNOLOGÍAS DE LA INFORMACIÓN (TI)')
+        if not nuevo_correo:
+            nuevo_correo = CorreoDepartamento(
+                departamento='TECNOLOGÍAS DE LA INFORMACIÓN (TI)',
+                correo=correo_viejo.correo
+            )
+            db.session.add(nuevo_correo)
+        db.session.delete(correo_viejo)
+
     # Correos de departamentos por defecto
     for dept in DEPARTAMENTOS_PERMITIDOS:
         if not CorreoDepartamento.query.get(dept):
