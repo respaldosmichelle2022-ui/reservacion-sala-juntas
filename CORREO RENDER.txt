@@ -1,9 +1,0 @@
-intelmichelle2026@gmail.com
-Y@mir8122
-
-Password en supabase:  UZYmQJ7dhexWP4VD
-
-dirección para introducir en render: postgresql://postgres:UZYmQJ7dhexWP4VD@db.yluwnugoxmauhjjylndv.supabase.co:5432/postgres
-
-region supabase: US West (Oregon) (us-west-2).
-Región render: US West (Oregon).

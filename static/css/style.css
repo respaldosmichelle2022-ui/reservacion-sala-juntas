@@ -50,6 +50,7 @@
     
     /* Transiciones */
     --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --text-on-primary: #ffffff;
 }
 
 [data-theme="dark"] {
@@ -71,6 +72,7 @@
     
     --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
     --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 4px 12px -5px rgba(0, 0, 0, 0.2);
+    --text-on-primary: #111111;
 }
 
 
@@ -181,7 +183,7 @@ body {
 
 .btn-primary {
     background: var(--primary-gradient);
-    color: white;
+    color: var(--text-on-primary);
     box-shadow: 0 4px 12px rgba(9, 9, 11, 0.2);
 }
 
@@ -566,7 +568,7 @@ textarea:focus {
     border-radius: var(--radius-md);
     padding: 0.5rem;
     font-size: 0.75rem;
-    color: white;
+    color: var(--text-on-primary);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     transition: var(--transition-smooth);
 }
@@ -592,7 +594,7 @@ textarea:focus {
     text-transform: uppercase;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    color: white;
+    color: inherit;
 }
 
 /* Estilo por Estatus de Ocupado */
@@ -639,7 +641,7 @@ textarea:focus {
 
 .modal-header {
     background: var(--primary-gradient);
-    color: white;
+    color: var(--text-on-primary);
     padding: 1.25rem 1.75rem;
     display: flex;
     justify-content: space-between;
@@ -654,7 +656,7 @@ textarea:focus {
 .close-modal {
     background: none;
     border: none;
-    color: white;
+    color: inherit;
     font-size: 1.75rem;
     cursor: pointer;
     line-height: 1;
@@ -1123,5 +1125,56 @@ body, header, aside, section, main, div, input, select, textarea, button, table,
 .admin-table td {
     transition: opacity 0.35s ease, transform 0.35s ease, padding 0.35s ease, height 0.35s ease;
 }
+
+/* Correcciones adicionales de contraste para el Modo Oscuro */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+    background-color: var(--bg-main) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] select option {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: var(--shadow-premium) !important;
+}
+
+[data-theme="dark"] .modal-detail-item {
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .occupied-badge {
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="dark"] .grid-corner,
+[data-theme="dark"] .grid-time-label {
+    background-color: var(--bg-card) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .today-header {
+    background: linear-gradient(180deg, #18181b 0%, #27272a 100%) !important;
+    border-bottom-color: var(--primary-color) !important;
+}
+
 
 
