@@ -68,8 +68,13 @@ with app.app_context():
 
     db.session.commit()
 
-# Función para enviar correo en segundo plano
 def send_email_async(subject, recipient, body_html):
+    with app.app_context():
+        config_envio = Configuracion.query.get('enviar_correos')
+        if config_envio and config_envio.valor == 'false':
+            print(f"Envio de correos desactivado. No se enviara a: {recipient}", flush=True)
+            return
+
     def send():
         brevo_api_key = os.environ.get('BREVO_API_KEY')
         if brevo_api_key:
@@ -251,10 +256,16 @@ def get_config_correos():
         return jsonify({'error': 'No autorizado'}), 401
     
     config_admin = Configuracion.query.get('admin_destinatarios')
+    config_envio = Configuracion.query.get('enviar_correos')
     depts = CorreoDepartamento.query.all()
+    
+    enviar_correos = True
+    if config_envio and config_envio.valor == 'false':
+        enviar_correos = False
     
     return jsonify({
         'admin_destinatarios': config_admin.valor if config_admin else '',
+        'enviar_correos': enviar_correos,
         'departamentos': {d.departamento: d.correo for d in depts}
     })
 
@@ -265,6 +276,7 @@ def update_config_correos():
     
     data = request.json or {}
     admin_val = data.get('admin_destinatarios', '').strip()
+    enviar_correos_val = 'true' if data.get('enviar_correos', True) else 'false'
     depts_data = data.get('departamentos', {})
     
     # Actualizar destinatarios admin
@@ -273,6 +285,13 @@ def update_config_correos():
         config_admin = Configuracion(clave='admin_destinatarios')
         db.session.add(config_admin)
     config_admin.valor = admin_val
+    
+    # Actualizar estado de envío de correos
+    config_envio = Configuracion.query.get('enviar_correos')
+    if not config_envio:
+        config_envio = Configuracion(clave='enviar_correos')
+        db.session.add(config_envio)
+    config_envio.valor = enviar_correos_val
     
     # Actualizar correos de cada departamento
     for dept_name, correo_val in depts_data.items():
