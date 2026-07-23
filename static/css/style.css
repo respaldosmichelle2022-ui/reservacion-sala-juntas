@@ -193,10 +193,15 @@ body {
 }
 
 .btn-secondary {
-    background-color: white;
+    background-color: var(--bg-card);
     color: var(--text-primary);
     border: 1px solid var(--border-accent);
     box-shadow: var(--shadow-soft);
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: var(--primary-light);
+    border-color: var(--border-color);
 }
 
 .btn-secondary:hover {
@@ -204,6 +209,11 @@ body {
     color: var(--primary-color);
     border-color: var(--border-accent);
     transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: var(--border-accent);
+    color: var(--text-primary);
 }
 
 .btn-danger {
