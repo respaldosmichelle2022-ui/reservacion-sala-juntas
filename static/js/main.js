@@ -3,8 +3,8 @@ let reservaciones = [];
 let lastSelectedDate = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar y controlar Tema Oscuro/Claro
-    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Inicializar y controlar Tema Oscuro/Claro (por defecto Oscuro)
+    const currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
     const themeBtn = document.getElementById('btn-theme-toggle');
     if (themeBtn) {

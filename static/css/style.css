@@ -825,7 +825,7 @@ textarea:focus {
 }
 
 .dashboard-section {
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: var(--radius-xl);
     padding: 2.25rem;
     border: 1px solid var(--border-color);
@@ -835,7 +835,7 @@ textarea:focus {
 .dashboard-section h2 {
     font-size: 1.35rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 0.35rem;
     letter-spacing: -0.01em;
 }
@@ -871,6 +871,11 @@ textarea:focus {
     letter-spacing: 0.05em;
 }
 
+[data-theme="dark"] .admin-table th {
+    background-color: var(--bg-main) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
 .admin-table td {
     padding: 1.15rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
@@ -880,6 +885,10 @@ textarea:focus {
 
 .admin-table tr:hover {
     background-color: #f8fafc;
+}
+
+[data-theme="dark"] .admin-table tr:hover {
+    background-color: var(--primary-light) !important;
 }
 
 .action-buttons {
@@ -974,7 +983,7 @@ textarea:focus {
     font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 0.35rem;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .empty-state p {
