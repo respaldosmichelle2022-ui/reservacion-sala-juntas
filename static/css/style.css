@@ -1186,78 +1186,99 @@ body, header, aside, section, main, div, input, select, textarea, button, table,
     border-bottom-color: var(--primary-color) !important;
 }
 
-/* Redes Sociales y Enlaces */
-.card-social {
-    margin-top: 0.5rem;
-}
-
-.social-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.social-item {
+/* Redes Sociales en Cabecera */
+.header-social-block {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    padding-left: 1rem;
+    margin-right: 0.5rem;
+}
+
+.header-social-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.header-social-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.header-social-desc {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.2;
+}
+
+.header-social-links {
+    display: flex;
+    gap: 0.45rem;
+}
+
+.header-social-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
     text-decoration: none;
-    background-color: var(--primary-light);
     transition: var(--transition-smooth);
 }
 
-.social-item:hover {
+.header-social-item:hover {
     transform: translateY(-2px);
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-soft);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.social-icon {
-    font-size: 1.25rem;
-    width: 24px;
-    height: 24px;
+.header-social-item.web:hover {
+    background: linear-gradient(135deg, #6366f1, #10b981) !important;
+    border-color: #6366f1 !important;
+    color: #ffffff !important;
+}
+
+.header-social-item.facebook:hover {
+    background-color: #1877f2 !important;
+    border-color: #1877f2 !important;
+    color: #ffffff !important;
+}
+
+.header-social-item.tiktok:hover {
+    background-color: #ff0050 !important;
+    border-color: #ff0050 !important;
+    color: #ffffff !important;
+}
+
+.header-social-item svg {
+    width: 16px;
+    height: 16px;
+}
+
+.header-social-item span {
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.social-icon-svg {
-    width: 20px;
-    height: 20px;
-    color: var(--text-primary);
-    transition: var(--transition-smooth);
-}
-
-.social-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.social-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.social-desc {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-/* Efectos de Hover con colores de marca */
-.social-item.web:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
-}
-
-.social-item.facebook:hover .social-icon-svg {
-    color: #1877f2;
-}
-
-.social-item.tiktok:hover .social-icon-svg {
-    color: #ff0050;
+/* Ocultar texto en pantallas medianas/pequeñas */
+@media (max-width: 900px) {
+    .header-social-info {
+        display: none;
+    }
+    .header-social-block {
+        border-left: none;
+        padding-left: 0;
+    }
 }
 
 

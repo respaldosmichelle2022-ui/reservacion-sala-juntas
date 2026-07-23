@@ -15,6 +15,28 @@
                 <h1>Sala de Juntas <span class="badge badge-rh">Recursos Humanos</span></h1>
             </div>
             <nav class="nav-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <!-- Michelle Accesorios Social Block -->
+                <div class="header-social-block">
+                    <div class="header-social-info">
+                        <span class="header-social-title">Michelle Accesorios</span>
+                        <span class="header-social-desc">Encuentra más sobre nosotros:</span>
+                    </div>
+                    <div class="header-social-links">
+                        <a href="https://michelle.com.mx" target="_blank" rel="noopener noreferrer" class="header-social-item web" title="Sitio Web Oficial">
+                            <span>🛍️</span>
+                        </a>
+                        <a href="https://www.facebook.com/michelleaccesorios" target="_blank" rel="noopener noreferrer" class="header-social-item facebook" title="Síguenos en Facebook">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.tiktok.com/@michelleaccesorios?lang=es-419" target="_blank" rel="noopener noreferrer" class="header-social-item tiktok" title="Síguenos en TikTok">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.525.02c1.31-.03 2.61-.01 3.91-.02.08 1.53.63 3.02 1.63 4.19 1.15 1.25 2.76 1.93 4.41 2.14v3.68c-1.74-.06-3.44-.64-4.85-1.7-.22-.17-.43-.35-.63-.54v7.45c.03 3.47-1.9 6.84-5.09 8.24-3.18 1.48-7.14.86-9.67-1.52C-.09 19.41-.63 15 1.22 11.27c1.47-3.04 4.8-5.04 8.18-4.94v3.66c-1.98-.15-4.04.75-4.99 2.5-.96 1.75-.59 4.13.92 5.46 1.52 1.35 4 1.32 5.48-.07.96-1 1.27-2.45 1.25-3.8V.02z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
                 <button id="btn-theme-toggle" class="btn-theme-toggle" title="Cambiar Tema">🌙</button>
                 <a href="{{ url_for('admin') }}" class="btn btn-secondary">Panel Admin</a>
             </nav>
@@ -120,39 +142,6 @@
 
                     <button type="submit" class="btn btn-primary btn-block">Solicitar Reservación</button>
                 </form>
-            </div>
-
-            <!-- Redes Sociales y Enlaces de Michelle Accesorios -->
-            <div class="card card-social">
-                <h3>Michelle Accesorios</h3>
-                <p>Encuentra más sobre nosotros en nuestras redes y sitio web:</p>
-                <div class="social-links">
-                    <a href="https://michelle.com.mx" target="_blank" rel="noopener noreferrer" class="social-item web">
-                        <span class="social-icon">🛍️</span>
-                        <div class="social-info">
-                            <span class="social-title">Sitio Oficial</span>
-                            <span class="social-desc">michelle.com.mx</span>
-                        </div>
-                    </a>
-                    <a href="https://www.facebook.com/michelleaccesorios" target="_blank" rel="noopener noreferrer" class="social-item facebook">
-                        <svg class="social-icon-svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        <div class="social-info">
-                            <span class="social-title">Facebook</span>
-                            <span class="social-desc">@michelleaccesorios</span>
-                        </div>
-                    </a>
-                    <a href="https://www.tiktok.com/@michelleaccesorios?lang=es-419" target="_blank" rel="noopener noreferrer" class="social-item tiktok">
-                        <svg class="social-icon-svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.525.02c1.31-.03 2.61-.01 3.91-.02.08 1.53.63 3.02 1.63 4.19 1.15 1.25 2.76 1.93 4.41 2.14v3.68c-1.74-.06-3.44-.64-4.85-1.7-.22-.17-.43-.35-.63-.54v7.45c.03 3.47-1.9 6.84-5.09 8.24-3.18 1.48-7.14.86-9.67-1.52C-.09 19.41-.63 15 1.22 11.27c1.47-3.04 4.8-5.04 8.18-4.94v3.66c-1.98-.15-4.04.75-4.99 2.5-.96 1.75-.59 4.13.92 5.46 1.52 1.35 4 1.32 5.48-.07.96-1 1.27-2.45 1.25-3.8V.02z"/>
-                        </svg>
-                        <div class="social-info">
-                            <span class="social-title">TikTok</span>
-                            <span class="social-desc">@michelleaccesorios</span>
-                        </div>
-                    </a>
-                </div>
             </div>
         </aside>
 
