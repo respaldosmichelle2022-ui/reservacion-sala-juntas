@@ -167,7 +167,7 @@
                         <input type="email" id="correo-rh" required>
                     </div>
                     <div class="form-group">
-                        <label for="correo-ti">TI *</label>
+                        <label for="correo-ti">Tecnologías de la Información (TI) *</label>
                         <input type="email" id="correo-ti" required>
                     </div>
                     <div class="form-group">
@@ -714,7 +714,7 @@
                 document.getElementById('correo-almacen').value = config.departamentos['ALMACEN'] || '';
                 document.getElementById('correo-taller').value = config.departamentos['TALLER Y CONTRALORIA'] || '';
                 document.getElementById('correo-rh').value = config.departamentos['RECURSOS HUMANOS'] || '';
-                document.getElementById('correo-ti').value = config.departamentos['TI'] || '';
+                document.getElementById('correo-ti').value = config.departamentos['TECNOLOGÍAS DE LA INFORMACIÓN (TI)'] || config.departamentos['TI'] || '';
                 document.getElementById('correo-abastecimiento').value = config.departamentos['ABASTECIMIENTO Y DESEMPEÑO COMERCIAL'] || '';
             } catch (err) {
                 showToast('Error al cargar la configuración de correos', 'error');
@@ -738,7 +738,7 @@
                     'ALMACEN': document.getElementById('correo-almacen').value,
                     'TALLER Y CONTRALORIA': document.getElementById('correo-taller').value,
                     'RECURSOS HUMANOS': document.getElementById('correo-rh').value,
-                    'TI': document.getElementById('correo-ti').value,
+                    'TECNOLOGÍAS DE LA INFORMACIÓN (TI)': document.getElementById('correo-ti').value,
                     'ABASTECIMIENTO Y DESEMPEÑO COMERCIAL': document.getElementById('correo-abastecimiento').value
                 }
             };
