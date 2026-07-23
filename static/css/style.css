@@ -1203,32 +1203,33 @@ body, header, aside, section, main, div, input, select, textarea, button, table,
 }
 
 .header-social-title {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.2;
+    letter-spacing: 0.02em;
 }
 
 .header-social-desc {
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.2;
 }
 
 .header-social-links {
     display: flex;
-    gap: 0.45rem;
+    gap: 0.5rem;
 }
 
 .header-social-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #ffffff;
     text-decoration: none;
     transition: var(--transition-smooth);
@@ -1259,12 +1260,12 @@ body, header, aside, section, main, div, input, select, textarea, button, table,
 }
 
 .header-social-item svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 
 .header-social-item span {
-    font-size: 1rem;
+    font-size: 1.15rem;
     display: flex;
     align-items: center;
     justify-content: center;
